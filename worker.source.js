@@ -523,8 +523,108 @@ export default {
 				
 				
 				if (url.pathname === '/') {
-					const successHtml = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>部署成功</title><style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background-color:#121212;color:#e0e0e0;text-align:center;}.container{padding:2rem;border-radius:8px;background-color:#1e1e1e;box-shadow:0 4px 6px rgba(0,0,0,0.1);}h1{color:#4caf50;}</style></head><body><div class="container"><h1>✅ 部署成功</h1><p>请继续后面的操作。</p></div></body></html>`;
-					return new Response(successHtml, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+					const terminalHtml = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>终端</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4 flex items-center">
+                <div class="flex gap-2">
+                    <div class="w-3 h-3 rounded-full bg-white/30"></div>
+                    <div class="w-3 h-3 rounded-full bg-white/30"></div>
+                    <div class="w-3 h-3 rounded-full bg-white/30"></div>
+                </div>
+                <div class="ml-4 text-white font-semibold text-sm">终端</div>
+            </div>
+            
+            <div class="p-8">
+                <div class="text-center mb-8">
+                    <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400 mb-2">
+                        🎉 欢迎
+                    </h1>
+                    <p class="text-gray-600">请输入您的 UUID 以继续</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">UUID 令牌</label>
+                        <input 
+                            type="text" 
+                            id="uuidInput" 
+                            placeholder="例如: 351c9981-04b6-4103-aa4b-864aa9c91469"
+                            class="w-full px-4 py-3 border-2 border-blue-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all font-mono text-sm"
+                            autofocus
+                        >
+                    </div>
+                    
+                    <button 
+                        onclick="handleConnect()"
+                        class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
+                    >
+                        连接
+                    </button>
+                    
+                    <div id="message" class="hidden p-3 rounded-lg text-sm"></div>
+                    
+                    <p class="text-center text-gray-400 text-xs mt-4">
+                        UUID 格式: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function isValidUUID(uuid) {
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            return uuidRegex.test(uuid);
+        }
+        
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = 'p-3 rounded-lg text-sm ' + (type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200');
+            messageDiv.classList.remove('hidden');
+        }
+        
+        function handleConnect() {
+            const input = document.getElementById('uuidInput');
+            const uuid = input.value.trim();
+            
+            if (!uuid) {
+                showMessage('请输入 UUID', 'error');
+                return;
+            }
+            
+            if (!isValidUUID(uuid)) {
+                showMessage('UUID 格式无效，请检查后重试', 'error');
+                return;
+            }
+            
+            showMessage('正在连接...', 'success');
+            setTimeout(() => {
+                showMessage('连接成功！正在跳转...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/' + uuid;
+                }, 500);
+            }, 300);
+        }
+        
+        document.getElementById('uuidInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleConnect();
+            }
+        });
+    </script>
+</body>
+</html>`;
+					return new Response(terminalHtml, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
 				}
 				if (url.pathname.length > 1 && url.pathname !== '/' && !url.pathname.includes('/sub')) {
 					const user = url.pathname.replace(/\/$/, '').substring(1);
