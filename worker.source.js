@@ -523,290 +523,8 @@ export default {
 				
 				
 				if (url.pathname === '/') {
-					const terminalHtml = `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>终端</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: "Courier New", monospace;
-            background: #000; color: #00ff00; min-height: 100vh;
-            overflow-x: hidden; position: relative;
-            display: flex; justify-content: center; align-items: center;
-        }
-        .matrix-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(45deg, #000 0%, #001100 50%, #000 100%);
-            z-index: -1;
-            animation: bg-pulse 8s ease-in-out infinite;
-        }
-        @keyframes bg-pulse {
-            0%, 100% { background: linear-gradient(45deg, #000 0%, #001100 50%, #000 100%); }
-            50% { background: linear-gradient(45deg, #000 0%, #002200 50%, #000 100%); }
-        }
-        .matrix-rain {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px);
-            animation: matrix-fall 20s linear infinite;
-            z-index: -1;
-        }
-        @keyframes matrix-fall {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100vh); }
-        }
-        .matrix-code-rain {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: -1;
-            overflow: hidden;
-        }
-        .matrix-column {
-            position: absolute; top: -100%; left: 0;
-            color: #00ff00; font-family: "Courier New", monospace;
-            font-size: 14px; line-height: 1.2;
-            animation: matrix-drop 15s linear infinite;
-            text-shadow: 0 0 5px #00ff00;
-        }
-        @keyframes matrix-drop {
-            0% { top: -100%; opacity: 1; }
-            10% { opacity: 1; }
-            90% { opacity: 0.3; }
-            100% { top: 100vh; opacity: 0; }
-        }
-        .matrix-column:nth-child(odd) {
-            animation-duration: 12s;
-            animation-delay: -2s;
-        }
-        .matrix-column:nth-child(even) {
-            animation-duration: 18s;
-            animation-delay: -5s;
-        }
-        .matrix-column:nth-child(3n) {
-            animation-duration: 20s;
-            animation-delay: -8s;
-        }
-        .terminal {
-            width: 90%; max-width: 800px; height: 500px;
-            background: rgba(0, 0, 0, 0.9);
-            border: 2px solid #00ff00;
-            border-radius: 8px;
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.5), inset 0 0 20px rgba(0, 255, 0, 0.1);
-            backdrop-filter: blur(10px);
-            position: relative; z-index: 1;
-            overflow: hidden;
-        }
-        .terminal-header {
-            background: rgba(0, 20, 0, 0.8);
-            padding: 10px 15px;
-            border-bottom: 1px solid #00ff00;
-            display: flex; align-items: center;
-        }
-        .terminal-buttons {
-            display: flex; gap: 8px;
-        }
-        .terminal-button {
-            width: 12px; height: 12px; border-radius: 50%;
-            background: #ff5f57; border: none;
-        }
-        .terminal-button:nth-child(2) { background: #ffbd2e; }
-        .terminal-button:nth-child(3) { background: #28ca42; }
-        .terminal-title {
-            margin-left: 15px; color: #00ff00;
-            font-size: 14px; font-weight: bold;
-        }
-        .terminal-body {
-            padding: 20px; height: calc(100% - 50px);
-            overflow-y: auto; font-size: 14px;
-            line-height: 1.4;
-        }
-        .terminal-line {
-            margin-bottom: 8px; display: flex; align-items: center;
-        }
-        .terminal-prompt {
-            color: #00ff00; margin-right: 10px;
-            font-weight: bold;
-        }
-        .terminal-input {
-            background: transparent; border: none; outline: none;
-            color: #00ff00; font-family: "Courier New", monospace;
-            font-size: 14px; flex: 1;
-            caret-color: #00ff00;
-        }
-        .terminal-input::placeholder {
-            color: #00aa00; opacity: 0.7;
-        }
-        .terminal-cursor {
-            display: inline-block; width: 8px; height: 16px;
-            background: #00ff00; animation: blink 1s infinite;
-            margin-left: 2px;
-        }
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-        .terminal-output {
-            color: #00aa00; margin: 5px 0;
-        }
-        .terminal-error {
-            color: #ff4444; margin: 5px 0;
-        }
-        .terminal-success {
-            color: #44ff44; margin: 5px 0;
-        }
-        .matrix-text {
-            position: fixed; top: 20px; right: 20px;
-            color: #00ff00; font-family: "Courier New", monospace;
-            font-size: 0.8rem; opacity: 0.6;
-            animation: matrix-flicker 3s infinite;
-        }
-        @keyframes matrix-flicker {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-        }
-    </style>
-</head>
-<body>
-    <div class="matrix-bg"></div>
-    <div class="matrix-rain"></div>
-    <div class="matrix-code-rain" id="matrixCodeRain"></div>
-    <div class="matrix-text">终端</div>
-    <div class="terminal">
-        <div class="terminal-header">
-            <div class="terminal-buttons">
-                <div class="terminal-button"></div>
-                <div class="terminal-button"></div>
-                <div class="terminal-button"></div>
-            </div>
-            <div class="terminal-title">终端</div>
-        </div>
-        <div class="terminal-body" id="terminalBody">
-            <div class="terminal-line">
-                <span class="terminal-prompt">root:~$</span>
-                <span class="terminal-output">恭喜你来到这</span>
-            </div>
-            <div class="terminal-line">
-                <span class="terminal-prompt">root:~$</span>
-                <span class="terminal-output">请输入你U变量的值</span>
-            </div>
-            <div class="terminal-line">
-                <span class="terminal-prompt">root:~$</span>
-                <span class="terminal-output">命令: connect [UUID]</span>
-            </div>
-            <div class="terminal-line">
-                <span class="terminal-prompt">root:~$</span>
-                <input type="text" class="terminal-input" id="uuidInput" placeholder="输入U变量的内容并且回车..." autofocus>
-                <span class="terminal-cursor"></span>
-            </div>
-        </div>
-    </div>
-    <script>
-        function createMatrixRain() {
-            const matrixContainer = document.getElementById('matrixCodeRain');
-            const matrixChars = '01ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-            const columns = Math.floor(window.innerWidth / 18);
-            
-            for (let i = 0; i < columns; i++) {
-                const column = document.createElement('div');
-                column.className = 'matrix-column';
-                column.style.left = (i * 18) + 'px';
-                column.style.animationDelay = Math.random() * 15 + 's';
-                column.style.animationDuration = (Math.random() * 15 + 8) + 's';
-                column.style.fontSize = (Math.random() * 4 + 12) + 'px';
-                column.style.opacity = Math.random() * 0.8 + 0.2;
-                
-                let text = '';
-                const charCount = Math.floor(Math.random() * 30 + 20);
-                for (let j = 0; j < charCount; j++) {
-                    const char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
-                    const brightness = Math.random() > 0.1 ? '#00ff00' : '#00aa00';
-                    text += '<span style="color: ' + brightness + ';">' + char + '</span><br>';
-                }
-                column.innerHTML = text;
-                matrixContainer.appendChild(column);
-            }
-            
-            setInterval(function() {
-                const columns = matrixContainer.querySelectorAll('.matrix-column');
-                columns.forEach(function(column) {
-                    if (Math.random() > 0.95) {
-                        const chars = column.querySelectorAll('span');
-                        if (chars.length > 0) {
-                            const randomChar = chars[Math.floor(Math.random() * chars.length)];
-                            randomChar.style.color = '#ffffff';
-                            setTimeout(function() {
-                                randomChar.style.color = '#00ff00';
-                            }, 200);
-                        }
-                    }
-                });
-            }, 100);
-        }
-        
-        function isValidUUID(uuid) {
-            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-            return uuidRegex.test(uuid);
-        }
-        
-        function addTerminalLine(content, type = 'output') {
-            const terminalBody = document.getElementById('terminalBody');
-            const line = document.createElement('div');
-            line.className = 'terminal-line';
-            
-            const prompt = document.createElement('span');
-            prompt.className = 'terminal-prompt';
-            prompt.textContent = 'root:~$';
-            
-            const output = document.createElement('span');
-            output.className = 'terminal-' + type;
-            output.textContent = content;
-            
-            line.appendChild(prompt);
-            line.appendChild(output);
-            terminalBody.appendChild(line);
-            
-            terminalBody.scrollTop = terminalBody.scrollHeight;
-        }
-        
-        function handleUUIDInput() {
-            const input = document.getElementById('uuidInput');
-            const uuid = input.value.trim();
-            
-            if (uuid) {
-                addTerminalLine('connect ' + uuid, 'output');
-                
-                if (isValidUUID(uuid)) {
-                    addTerminalLine('正在入侵...', 'output');
-                    setTimeout(() => {
-                        addTerminalLine('连接成功！返回结果...', 'success');
-                        setTimeout(() => {
-                            window.location.href = '/' + uuid;
-                        }, 1000);
-                    }, 500);
-                } else {
-                    addTerminalLine('错误: 无效的UUID格式', 'error');
-                    addTerminalLine('请重新输入有效的UUID', 'output');
-                }
-                
-                input.value = '';
-            }
-        }
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            createMatrixRain();
-            
-            const input = document.getElementById('uuidInput');
-            input.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    handleUUIDInput();
-                }
-            });
-        });
-    </script>
-</body>
-</html>`;
-					return new Response(terminalHtml, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+					const successHtml = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>部署成功</title><style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background-color:#121212;color:#e0e0e0;text-align:center;}.container{padding:2rem;border-radius:8px;background-color:#1e1e1e;box-shadow:0 4px 6px rgba(0,0,0,0.1);}h1{color:#4caf50;}</style></head><body><div class="container"><h1>✅ 部署成功</h1><p>请继续后面的操作。</p></div></body></html>`;
+					return new Response(successHtml, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
 				}
 				if (url.pathname.length > 1 && url.pathname !== '/' && !url.pathname.includes('/sub')) {
 					const user = url.pathname.replace(/\/$/, '').substring(1);
@@ -1358,259 +1076,78 @@ async function handleSubscriptionPage(request, user = null) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>订阅中心</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: "Courier New", monospace;
-            background: #000; color: #00ff00; min-height: 100vh;
-            overflow-x: hidden; position: relative;
-        }
-        .matrix-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(45deg, #000 0%, #001100 50%, #000 100%);
-            z-index: -1;
-            animation: bg-pulse 8s ease-in-out infinite;
-        }
-        @keyframes bg-pulse {
-            0%, 100% { background: linear-gradient(45deg, #000 0%, #001100 50%, #000 100%); }
-            50% { background: linear-gradient(45deg, #000 0%, #002200 50%, #000 100%); }
-        }
-        .matrix-rain {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px);
-            animation: matrix-fall 20s linear infinite;
-            z-index: -1;
-        }
-        @keyframes matrix-fall {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100vh); }
-        }
-        .matrix-code-rain {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: -1;
-            overflow: hidden;
-        }
-        .matrix-column {
-            position: absolute; top: -100%; left: 0;
-            color: #00ff00; font-family: "Courier New", monospace;
-            font-size: 14px; line-height: 1.2;
-            animation: matrix-drop 15s linear infinite;
-            text-shadow: 0 0 5px #00ff00;
-        }
-        @keyframes matrix-drop {
-            0% { top: -100%; opacity: 1; }
-            10% { opacity: 1; }
-            90% { opacity: 0.3; }
-            100% { top: 100vh; opacity: 0; }
-        }
-        .matrix-column:nth-child(odd) {
-            animation-duration: 12s;
-            animation-delay: -2s;
-        }
-        .matrix-column:nth-child(even) {
-            animation-duration: 18s;
-            animation-delay: -5s;
-        }
-        .matrix-column:nth-child(3n) {
-            animation-duration: 20s;
-            animation-delay: -8s;
-        }
-        .container { max-width: 900px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
-        .header { text-align: center; margin-bottom: 40px; }
-        .title {
-            font-size: 3.5rem; font-weight: bold;
-            text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00, 0 0 40px #00ff00;
-            margin-bottom: 10px;
-            animation: matrix-glow 1.5s ease-in-out infinite alternate, matrix-pulse 3s ease-in-out infinite;
-            position: relative;
-            background: linear-gradient(45deg, #00ff00, #00aa00, #00ff00);
-            background-size: 200% 200%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        @keyframes matrix-glow {
-            from { text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00, 0 0 40px #00ff00; }
-            to { text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00, 0 0 40px #00ff00, 0 0 50px #00ff00; }
-        }
-        @keyframes matrix-pulse {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-        .subtitle { color: #00aa00; margin-bottom: 30px; font-size: 1.2rem; }
-        .card {
-            background: rgba(0, 20, 0, 0.9);
-            border: 2px solid #00ff00;
-            border-radius: 0; padding: 30px; margin-bottom: 20px;
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.5), inset 0 0 20px rgba(0, 255, 0, 0.1);
-            position: relative;
-            backdrop-filter: blur(10px);
-            animation: card-glow 4s ease-in-out infinite;
-        }
-        @keyframes card-glow {
-            0%, 100% { box-shadow: 0 0 30px rgba(0, 255, 0, 0.5), inset 0 0 20px rgba(0, 255, 0, 0.1); }
-            50% { box-shadow: 0 0 40px rgba(0, 255, 0, 0.7), inset 0 0 30px rgba(0, 255, 0, 0.2); }
-        }
-        .card::before {
-            content: ""; position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: linear-gradient(45deg, transparent 49%, #00ff00 50%, transparent 51%);
-            opacity: 0.2; pointer-events: none;
-            animation: scan-line 3s linear infinite;
-        }
-        @keyframes scan-line {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-        .card-title {
-            font-size: 1.8rem; margin-bottom: 20px;
-            color: #00ff00; text-shadow: 0 0 5px #00ff00;
-        }
-        .client-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px; margin: 20px 0;
-        }
-        .client-btn {
-            background: rgba(0, 20, 0, 0.8);
-            border: 2px solid #00ff00;
-            padding: 15px 20px; color: #00ff00;
-            font-family: "Courier New", monospace; font-weight: bold;
-            cursor: pointer; transition: all 0.4s ease;
-            text-align: center; position: relative;
-            overflow: hidden;
-            text-shadow: 0 0 5px #00ff00;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
-        }
-        .client-btn::before {
-            content: ""; position: absolute; top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0,255,0,0.4), transparent);
-            transition: left 0.6s ease;
-        }
-        .client-btn::after {
-            content: ""; position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: linear-gradient(45deg, transparent 30%, rgba(0,255,0,0.1) 50%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .client-btn:hover::before { left: 100%; }
-        .client-btn:hover::after { opacity: 1; }
-        .client-btn:hover {
-            background: rgba(0, 255, 0, 0.3);
-            box-shadow: 0 0 25px #00ff00, 0 0 35px rgba(0, 255, 0, 0.5);
-            transform: translateY(-3px) scale(1.05);
-            text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
-        }
-        .generate-btn {
-            background: rgba(0, 255, 0, 0.15);
-            border: 2px solid #00ff00; padding: 15px 30px;
-            color: #00ff00; font-family: "Courier New", monospace;
-            font-weight: bold; cursor: pointer;
-            transition: all 0.4s ease; margin-right: 15px;
-            text-shadow: 0 0 8px #00ff00;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
-            position: relative;
-            overflow: hidden;
-        }
-        .generate-btn::before {
-            content: ""; position: absolute; top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0,255,0,0.5), transparent);
-            transition: left 0.8s ease;
-        }
-        .generate-btn:hover::before { left: 100%; }
-        .generate-btn:hover {
-            background: rgba(0, 255, 0, 0.4);
-            box-shadow: 0 0 30px #00ff00, 0 0 40px rgba(0, 255, 0, 0.6);
-            transform: translateY(-4px) scale(1.08);
-            text-shadow: 0 0 15px #00ff00, 0 0 25px #00ff00;
-        }
-        .subscription-url {
-            background: rgba(0, 0, 0, 0.9);
-            border: 2px solid #00ff00; padding: 15px;
-            word-break: break-all; font-family: "Courier New", monospace;
-            color: #00ff00; margin-top: 20px; display: none;
-            box-shadow: inset 0 0 15px rgba(0, 255, 0, 0.4), 0 0 20px rgba(0, 255, 0, 0.3);
-            border-radius: 5px;
-            animation: url-glow 2s ease-in-out infinite alternate;
-            position: relative;
-            overflow: hidden;
-        }
-        @keyframes url-glow {
-            from { box-shadow: inset 0 0 15px rgba(0, 255, 0, 0.4), 0 0 20px rgba(0, 255, 0, 0.3); }
-            to { box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.6), 0 0 30px rgba(0, 255, 0, 0.5); }
-        }
-        .subscription-url::before {
-            content: ""; position: absolute; top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0,255,0,0.1), transparent);
-            animation: url-scan 3s linear infinite;
-        }
-        @keyframes url-scan {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-        .matrix-text {
-            position: fixed; top: 20px; right: 20px;
-            color: #00ff00; font-family: "Courier New", monospace;
-            font-size: 0.8rem; opacity: 0.6;
-            animation: matrix-flicker 3s infinite;
-        }
-        @keyframes matrix-flicker {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="matrix-bg"></div>
-    <div class="matrix-rain"></div>
-    <div class="matrix-code-rain" id="matrixCodeRain"></div>
-    <div class="matrix-text">代理订阅中心 v1.1</div>
-    <div class="container">
-        <div class="header">
-            <h1 class="title">代理订阅中心</h1>
-            <p class="subtitle">多客户端支持 • 智能优选 • 一键生成</p>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
+    <div class="fixed top-4 right-4 text-blue-400 text-sm opacity-70">代理订阅中心 v1.1</div>
+    
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400 mb-4">
+                代理订阅中心
+            </h1>
+            <p class="text-blue-600 text-lg">多客户端支持 • 智能优选 • 一键生成</p>
         </div>
-        <div class="card">
-            <h2 class="card-title">[ 选择客户端 ]</h2>
-            <div class="client-grid">
-                <button class="client-btn" onclick="generateClientLink(atob('Y2xhc2g='))">CLASH</button>
-                <button class="client-btn" onclick="generateClientLink(atob('c3VyZ2U='))">SURGE</button>
-                <button class="client-btn" onclick="generateClientLink(atob('c2luZ2JveA=='))">SING-BOX</button>
-                <button class="client-btn" onclick="generateClientLink(atob('bG9vbg=='))">LOON</button>
-                <button class="client-btn" onclick="generateClientLink(atob('djJyYXk='))">V2RAY</button>
+
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-100 p-8 mb-6 hover:shadow-xl transition-shadow duration-300">
+            <h2 class="text-2xl font-semibold text-blue-700 mb-6">选择客户端</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
+                <button onclick="generateClientLink('clash')" 
+                    class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200">
+                    CLASH
+                </button>
+                <button onclick="generateClientLink('surge')" 
+                    class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200">
+                    SURGE
+                </button>
+                <button onclick="generateClientLink('singbox')" 
+                    class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200">
+                    SING-BOX
+                </button>
+                <button onclick="generateClientLink('loon')" 
+                    class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200">
+                    LOON
+                </button>
+                <button onclick="generateClientLink('v2ray')" 
+                    class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200">
+                    V2RAY
+                </button>
             </div>
-            <div class="subscription-url" id="clientSubscriptionUrl"></div>
+            <div id="clientSubscriptionUrl" class="hidden mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg break-all text-sm text-blue-800 font-mono"></div>
         </div>
-        <div class="card">
-            <h2 class="card-title">[ 快速获取 ]</h2>
-            <button class="generate-btn" onclick="getBase64Subscription()">获取订阅链接</button>
-            <div class="subscription-url" id="base64SubscriptionUrl"></div>
+
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-100 p-8 mb-6 hover:shadow-xl transition-shadow duration-300">
+            <h2 class="text-2xl font-semibold text-blue-700 mb-6">快速获取</h2>
+            <button onclick="getBase64Subscription()" 
+                class="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-3 px-8 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200">
+                获取订阅链接
+            </button>
+            <div id="base64SubscriptionUrl" class="hidden mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg break-all text-sm text-blue-800 font-mono"></div>
         </div>
-        <div class="card">
-            <h2 class="card-title">[ 系统状态 ]</h2>
-            <div id="systemStatus" style="margin: 20px 0; padding: 15px; background: rgba(0, 20, 0, 0.8); border: 2px solid #00ff00; box-shadow: 0 0 20px rgba(0, 255, 0, 0.3), inset 0 0 15px rgba(0, 255, 0, 0.1); position: relative; overflow: hidden;">
-                <div style="color: #00ff00; margin-bottom: 15px; font-weight: bold; text-shadow: 0 0 5px #00ff00;">[ 系统检测中... ]</div>
-                <div id="regionStatus" style="margin: 8px 0; color: #00ff00; font-family: 'Courier New', monospace; text-shadow: 0 0 3px #00ff00;">Worker地区: 检测中...</div>
-                <div id="geoInfo" style="margin: 8px 0; color: #00aa00; font-family: 'Courier New', monospace; font-size: 0.9rem; text-shadow: 0 0 3px #00aa00;">检测方式: 检测中...</div>
-                <div id="backupStatus" style="margin: 8px 0; color: #00ff00; font-family: 'Courier New', monospace; text-shadow: 0 0 3px #00ff00;">ProxyIP状态: 检测中...</div>
-                <div id="currentIP" style="margin: 8px 0; color: #00ff00; font-family: 'Courier New', monospace; text-shadow: 0 0 3px #00ff00;">当前使用IP: 检测中...</div>
-                <div id="regionMatch" style="margin: 8px 0; color: #00ff00; font-family: 'Courier New', monospace; text-shadow: 0 0 3px #00ff00;">地区匹配: 检测中...</div>
-                <div id="selectionLogic" style="margin: 8px 0; color: #00aa00; font-family: 'Courier New', monospace; font-size: 0.9rem; text-shadow: 0 0 3px #00aa00;">选择逻辑: 同地区 → 邻近地区 → 其他地区</div>
+
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-100 p-8 mb-6 hover:shadow-xl transition-shadow duration-300">
+            <h2 class="text-2xl font-semibold text-blue-700 mb-6">系统状态</h2>
+            <div id="systemStatus" class="bg-blue-50 border-2 border-blue-200 rounded-lg p-6">
+                <div class="font-bold text-blue-700 mb-4">系统检测中...</div>
+                <div id="regionStatus" class="mb-2 text-blue-600">Worker地区: 检测中...</div>
+                <div id="geoInfo" class="mb-2 text-blue-500 text-sm">检测方式: 检测中...</div>
+                <div id="backupStatus" class="mb-2 text-blue-600">ProxyIP状态: 检测中...</div>
+                <div id="currentIP" class="mb-2 text-blue-600">当前使用IP: 检测中...</div>
+                <div id="regionMatch" class="mb-2 text-blue-600">地区匹配: 检测中...</div>
+                <div id="selectionLogic" class="text-blue-500 text-sm">选择逻辑: 同地区 → 邻近地区 → 其他地区</div>
             </div>
         </div>
-        <div class="card" id="configCard" style="display: none;">
-            <h2 class="card-title">[ 配置管理 ]</h2>
-            <div id="kvStatus" style="margin-bottom: 20px; padding: 10px; background: rgba(0, 20, 0, 0.8); border: 1px solid #00ff00; color: #00ff00;">
+        
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-100 p-8 mb-6 hover:shadow-xl transition-shadow duration-300" id="configCard" style="display: none;">
+            <h2 class="text-2xl font-semibold text-blue-700 mb-6">配置管理</h2>
+            <div id="kvStatus" class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg text-blue-700">
                 检测KV状态中...
             </div>
             <div id="configContent" style="display: none;">
-                <form id="regionForm" style="margin-bottom: 20px;">
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 8px; color: #00ff00; font-weight: bold; text-shadow: 0 0 3px #00ff00;">指定地区 (wk):</label>
-                        <select id="wkRegion" style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.8); border: 2px solid #00ff00; color: #00ff00; font-family: 'Courier New', monospace; font-size: 14px;">
+                <form id="regionForm" class="mb-6">
+                    <div class="mb-4">
+                        <label class="block mb-2 text-blue-700 font-semibold">指定地区 (wk):</label>
+                        <select id="wkRegion" class="w-full p-3 bg-white border-2 border-blue-200 rounded-lg text-blue-700 focus:border-blue-500 focus:outline-none">
                             <option value="">自动检测</option>
                             <option value="US">🇺🇸 美国</option>
                             <option value="SG">🇸🇬 新加坡</option>
@@ -1623,92 +1160,98 @@ async function handleSubscriptionPage(request, user = null) {
                             <option value="FI">🇫🇮 芬兰</option>
                             <option value="GB">🇬🇧 英国</option>
                         </select>
-                        <small id="wkRegionHint" style="color: #00aa00; font-size: 0.85rem; display: none;">⚠️ 使用自定义ProxyIP时，地区选择已禁用</small>
+                        <small id="wkRegionHint" class="text-orange-500 text-xs hidden">⚠️ 使用自定义ProxyIP时，地区选择已禁用</small>
                     </div>
-                    <button type="submit" style="background: rgba(0, 255, 0, 0.15); border: 2px solid #00ff00; padding: 12px 24px; color: #00ff00; font-family: 'Courier New', monospace; font-weight: bold; cursor: pointer; margin-right: 10px; text-shadow: 0 0 8px #00ff00; transition: all 0.4s ease;">保存地区配置</button>
+                    <button type="submit" class="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200">保存地区配置</button>
                 </form>
-                <form id="otherConfigForm" style="margin-bottom: 20px;">
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 8px; color: #00ff00; font-weight: bold; text-shadow: 0 0 3px #00ff00;">自定义ProxyIP (p):</label>
-                        <input type="text" id="customIP" placeholder="例如: 1.2.3.4:443" style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.8); border: 2px solid #00ff00; color: #00ff00; font-family: 'Courier New', monospace; font-size: 14px;">
-                        <small style="color: #00aa00; font-size: 0.85rem;">自定义ProxyIP地址和端口</small>
+                <form id="otherConfigForm" class="mb-6">
+                    <div class="mb-4">
+                        <label class="block mb-2 text-blue-700 font-semibold">自定义ProxyIP (p):</label>
+                        <input type="text" id="customIP" placeholder="例如: 1.2.3.4:443" class="w-full p-3 bg-white border-2 border-blue-200 rounded-lg text-blue-700 focus:border-blue-500 focus:outline-none">
+                        <small class="text-blue-500 text-xs">自定义ProxyIP地址和端口</small>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 8px; color: #00ff00; font-weight: bold; text-shadow: 0 0 3px #00ff00;">优选IP列表 (yx):</label>
-                        <input type="text" id="preferredIPs" placeholder="例如: 1.2.3.4:443#香港节点,5.6.7.8:80#美国节点,example.com:8443#新加坡节点" style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.8); border: 2px solid #00ff00; color: #00ff00; font-family: 'Courier New', monospace; font-size: 14px;">
-                        <small style="color: #00aa00; font-size: 0.85rem;">格式: IP:端口#节点名称 或 IP:端口 (无#则使用默认名称)。支持多个，用逗号分隔。<span style="color: #ffaa00;">API添加的IP会自动显示在这里。</span></small>
+                    <div class="mb-4">
+                        <label class="block mb-2 text-blue-700 font-semibold">优选IP列表 (yx):</label>
+                        <input type="text" id="preferredIPs" placeholder="例如: 1.2.3.4:443#香港节点,5.6.7.8:80#美国节点" class="w-full p-3 bg-white border-2 border-blue-200 rounded-lg text-blue-700 focus:border-blue-500 focus:outline-none">
+                        <small class="text-blue-500 text-xs">格式: IP:端口#节点名称。支持多个，用逗号分隔。<span class="text-orange-500">API添加的IP会自动显示在这里。</span></small>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 8px; color: #00ff00; font-weight: bold; text-shadow: 0 0 3px #00ff00;">优选IP来源URL (yxURL):</label>
-                        <input type="text" id="preferredIPsURL" placeholder="默认: https://raw.githubusercontent.com/qwer-search/bestip/refs/heads/main/kejilandbestip.txt" style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.8); border: 2px solid #00ff00; color: #00ff00; font-family: 'Courier New', monospace; font-size: 14px;">
-                        <small style="color: #00aa00; font-size: 0.85rem;">自定义优选IP列表来源URL，留空则使用默认地址</small>
+                    <div class="mb-4">
+                        <label class="block mb-2 text-blue-700 font-semibold">优选IP来源URL (yxURL):</label>
+                        <input type="text" id="preferredIPsURL" placeholder="默认: https://raw.githubusercontent.com/qwer-search/bestip/refs/heads/main/kejilandbestip.txt" class="w-full p-3 bg-white border-2 border-blue-200 rounded-lg text-blue-700 focus:border-blue-500 focus:outline-none">
+                        <small class="text-blue-500 text-xs">自定义优选IP列表来源URL，留空则使用默认地址</small>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 8px; color: #00ff00; font-weight: bold; text-shadow: 0 0 3px #00ff00;">SOCKS5配置 (s):</label>
-                        <input type="text" id="socksConfig" placeholder="例如: user:pass@host:port 或 host:port" style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.8); border: 2px solid #00ff00; color: #00ff00; font-family: 'Courier New', monospace; font-size: 14px;">
-                        <small style="color: #00aa00; font-size: 0.85rem;">SOCKS5代理地址，用于转发所有出站流量</small>
+                    <div class="mb-4">
+                        <label class="block mb-2 text-blue-700 font-semibold">SOCKS5配置 (s):</label>
+                        <input type="text" id="socksConfig" placeholder="例如: user:pass@host:port 或 host:port" class="w-full p-3 bg-white border-2 border-blue-200 rounded-lg text-blue-700 focus:border-blue-500 focus:outline-none">
+                        <small class="text-blue-500 text-xs">SOCKS5代理地址，用于转发所有出站流量</small>
                     </div>
-                    <button type="submit" style="background: rgba(0, 255, 0, 0.15); border: 2px solid #00ff00; padding: 12px 24px; color: #00ff00; font-family: 'Courier New', monospace; font-weight: bold; cursor: pointer; margin-right: 10px; text-shadow: 0 0 8px #00ff00; transition: all 0.4s ease;">保存配置</button>
+                    <button type="submit" class="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200">保存配置</button>
                 </form>
                 
-                <h3 style="color: #00ff00; margin: 20px 0 15px 0; font-size: 1.2rem;">高级控制</h3>
-                <form id="advancedConfigForm" style="margin-bottom: 20px;">
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 8px; color: #00ff00; font-weight: bold; text-shadow: 0 0 3px #00ff00;">允许API管理 (apiEnabled):</label>
-                        <select id="apiEnabled" style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.8); border: 2px solid #00ff00; color: #00ff00; font-family: 'Courier New', monospace; font-size: 14px;">
+                <h3 class="text-xl font-semibold text-blue-700 mb-4">高级控制</h3>
+                <form id="advancedConfigForm" class="mb-6">
+                    <div class="mb-4">
+                        <label class="block mb-2 text-blue-700 font-semibold">允许API管理 (apiEnabled):</label>
+                        <select id="apiEnabled" class="w-full p-3 bg-white border-2 border-blue-200 rounded-lg text-blue-700 focus:border-blue-500 focus:outline-none">
                             <option value="">默认（关闭API）</option>
                             <option value="yes">开启API管理</option>
                         </select>
-                        <small style="color: #ffaa00; font-size: 0.85rem;">⚠️ 安全提醒：开启后允许通过API动态添加优选IP。建议仅在需要时开启。</small>
+                        <small class="text-orange-500 text-xs">⚠️ 安全提醒：开启后允许通过API动态添加优选IP。建议仅在需要时开启。</small>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 8px; color: #00ff00; font-weight: bold; text-shadow: 0 0 3px #00ff00;">地区匹配 (rm):</label>
-                        <select id="regionMatching" style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.8); border: 2px solid #00ff00; color: #00ff00; font-family: 'Courier New', monospace; font-size: 14px;">
+                    <div class="mb-4">
+                        <label class="block mb-2 text-blue-700 font-semibold">地区匹配 (rm):</label>
+                        <select id="regionMatching" class="w-full p-3 bg-white border-2 border-blue-200 rounded-lg text-blue-700 focus:border-blue-500 focus:outline-none">
                             <option value="">默认（启用地区匹配）</option>
                             <option value="no">关闭地区匹配</option>
                         </select>
-                        <small style="color: #00aa00; font-size: 0.85rem;">设置为"关闭"时不进行地区智能匹配</small>
+                        <small class="text-blue-500 text-xs">设置为"关闭"时不进行地区智能匹配</small>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 8px; color: #00ff00; font-weight: bold; text-shadow: 0 0 3px #00ff00;">降级控制 (qj):</label>
-                        <select id="downgradeControl" style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.8); border: 2px solid #00ff00; color: #00ff00; font-family: 'Courier New', monospace; font-size: 14px;">
+                    <div class="mb-4">
+                        <label class="block mb-2 text-blue-700 font-semibold">降级控制 (qj):</label>
+                        <select id="downgradeControl" class="w-full p-3 bg-white border-2 border-blue-200 rounded-lg text-blue-700 focus:border-blue-500 focus:outline-none">
                             <option value="">默认（不启用降级）</option>
                             <option value="no">启用降级模式</option>
                         </select>
-                        <small style="color: #00aa00; font-size: 0.85rem;">设置为"启用"时：CF直连失败→SOCKS5连接→fallback地址</small>
+                        <small class="text-blue-500 text-xs">设置为"启用"时：CF直连失败→SOCKS5连接→fallback地址</small>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 8px; color: #00ff00; font-weight: bold; text-shadow: 0 0 3px #00ff00;">TLS控制 (dkby):</label>
-                        <select id="portControl" style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.8); border: 2px solid #00ff00; color: #00ff00; font-family: 'Courier New', monospace; font-size: 14px;">
+                    <div class="mb-4">
+                        <label class="block mb-2 text-blue-700 font-semibold">TLS控制 (dkby):</label>
+                        <select id="portControl" class="w-full p-3 bg-white border-2 border-blue-200 rounded-lg text-blue-700 focus:border-blue-500 focus:outline-none">
                             <option value="">默认（保留所有节点）</option>
                             <option value="yes">仅TLS节点</option>
                         </select>
-                        <small style="color: #00aa00; font-size: 0.85rem;">设置为"仅TLS节点"时只生成带TLS的节点，不生成非TLS节点（如80端口）</small>
+                        <small class="text-blue-500 text-xs">设置为"仅TLS节点"时只生成带TLS的节点，不生成非TLS节点（如80端口）</small>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 8px; color: #00ff00; font-weight: bold; text-shadow: 0 0 3px #00ff00;">优选控制 (yxby):</label>
-                        <select id="preferredControl" style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.8); border: 2px solid #00ff00; color: #00ff00; font-family: 'Courier New', monospace; font-size: 14px;">
+                    <div class="mb-4">
+                        <label class="block mb-2 text-blue-700 font-semibold">优选控制 (yxby):</label>
+                        <select id="preferredControl" class="w-full p-3 bg-white border-2 border-blue-200 rounded-lg text-blue-700 focus:border-blue-500 focus:outline-none">
                             <option value="">默认（启用优选）</option>
                             <option value="yes">关闭优选</option>
                         </select>
-                        <small style="color: #00aa00; font-size: 0.85rem;">设置为"关闭优选"时只使用原生地址，不生成优选IP和域名节点</small>
+                        <small class="text-blue-500 text-xs">设置为"关闭优选"时只使用原生地址，不生成优选IP和域名节点</small>
                     </div>
-                    <button type="submit" style="background: rgba(0, 255, 0, 0.15); border: 2px solid #00ff00; padding: 12px 24px; color: #00ff00; font-family: 'Courier New', monospace; font-weight: bold; cursor: pointer; margin-right: 10px; text-shadow: 0 0 8px #00ff00; transition: all 0.4s ease;">保存高级配置</button>
+                    <button type="submit" class="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200">保存高级配置</button>
                 </form>
-                <div id="currentConfig" style="background: rgba(0, 0, 0, 0.9); border: 1px solid #00ff00; padding: 15px; margin: 10px 0; font-family: 'Courier New', monospace; color: #00ff00;">
+                <div id="currentConfig" class="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-4 font-mono text-sm text-blue-700 whitespace-pre-wrap">
                     加载中...
                 </div>
-                <button onclick="loadCurrentConfig()" style="background: rgba(0, 255, 0, 0.15); border: 2px solid #00ff00; padding: 12px 24px; color: #00ff00; font-family: 'Courier New', monospace; font-weight: bold; cursor: pointer; margin-right: 10px; text-shadow: 0 0 8px #00ff00; transition: all 0.4s ease;">刷新配置</button>
-                <button onclick="resetAllConfig()" style="background: rgba(255, 0, 0, 0.15); border: 2px solid #ff0000; padding: 12px 24px; color: #ff0000; font-family: 'Courier New', monospace; font-weight: bold; cursor: pointer; text-shadow: 0 0 8px #ff0000; transition: all 0.4s ease;">重置配置</button>
+                <button onclick="loadCurrentConfig()" class="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2 px-6 rounded-lg mr-2 transition-all duration-200">刷新配置</button>
+                <button onclick="resetAllConfig()" class="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200">重置配置</button>
             </div>
-            <div id="statusMessage" style="display: none; padding: 10px; margin: 10px 0; border: 1px solid #00ff00; background: rgba(0, 20, 0, 0.8); color: #00ff00; text-shadow: 0 0 5px #00ff00;"></div>
+            <div id="statusMessage" class="hidden p-4 mt-4 border rounded-lg"></div>
         </div>
-        
-        <div class="card">
-            <h2 class="card-title">[ 相关链接 ]</h2>
-            <div style="text-align: center; margin: 20px 0;">
-                <a href="https://github.com/byJoey/cfnew" target="_blank" style="color: #00ff00; text-decoration: none; margin: 0 20px; font-size: 1.2rem; text-shadow: 0 0 5px #00ff00;">GitHub 项目</a>
-                <a href="https://www.youtube.com/@joeyblog" target="_blank" style="color: #00ff00; text-decoration: none; margin: 0 20px; font-size: 1.2rem; text-shadow: 0 0 5px #00ff00;">YouTube @joeyblog</a>
+
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-100 p-8 hover:shadow-xl transition-shadow duration-300">
+            <h2 class="text-2xl font-semibold text-blue-700 mb-6">相关链接</h2>
+            <div class="flex flex-wrap justify-center gap-6">
+                <a href="https://github.com/byJoey/cfnew" target="_blank" 
+                    class="text-blue-600 hover:text-blue-800 font-medium text-lg hover:underline transition-colors duration-200">
+                    GitHub 项目
+                </a>
+                <a href="https://www.youtube.com/@joeyblog" target="_blank" 
+                    class="text-blue-600 hover:text-blue-800 font-medium text-lg hover:underline transition-colors duration-200">
+                    YouTube @joeyblog
+                </a>
             </div>
         </div>
     </div>
@@ -1716,22 +1259,25 @@ async function handleSubscriptionPage(request, user = null) {
         function generateClientLink(clientType) {
             var currentUrl = window.location.href;
             var subscriptionUrl = currentUrl + "/sub";
+            var element = document.getElementById("clientSubscriptionUrl");
             
-            if (clientType === atob('djJyYXk=')) {
-                document.getElementById("clientSubscriptionUrl").textContent = subscriptionUrl;
-                document.getElementById("clientSubscriptionUrl").style.display = "block";
+            // V2RAY 不需要转换，直接返回原始订阅
+            if (clientType === 'v2ray') {
+                element.textContent = subscriptionUrl;
+                element.classList.remove('hidden');
                 navigator.clipboard.writeText(subscriptionUrl).then(function() {
                     alert("V2Ray 订阅链接已复制");
                 });
             } else {
+                // 其他客户端需要通过API转换
                 var encodedUrl = encodeURIComponent(subscriptionUrl);
                 var apiUrl = "https://s.jhb.edu.kg/sub?target=" + clientType + "&url=" + encodedUrl + "&insert=false";
-                document.getElementById("clientSubscriptionUrl").textContent = apiUrl;
-                document.getElementById("clientSubscriptionUrl").style.display = "block";
+                element.textContent = apiUrl;
+                element.classList.remove('hidden');
                 navigator.clipboard.writeText(apiUrl).then(function() {
                     var displayName = clientType.toUpperCase();
-                    if (clientType === atob('c3VyZ2U=')) displayName = 'SURGE';
-                    if (clientType === atob('c2luZ2JveA==')) displayName = 'SING-BOX';
+                    if (clientType === 'surge') displayName = 'SURGE';
+                    if (clientType === 'singbox') displayName = 'SING-BOX';
                     alert(displayName + " 订阅链接已复制");
                 });
             }
@@ -1739,14 +1285,16 @@ async function handleSubscriptionPage(request, user = null) {
         function getBase64Subscription() {
             var currentUrl = window.location.href;
             var subscriptionUrl = currentUrl + "/sub";
+            var element = document.getElementById("base64SubscriptionUrl");
             
+            // 直接获取Base64订阅内容
             fetch(subscriptionUrl)
                 .then(function(response) {
                     return response.text();
                 })
                 .then(function(base64Content) {
-                    document.getElementById("base64SubscriptionUrl").textContent = base64Content;
-                    document.getElementById("base64SubscriptionUrl").style.display = "block";
+                    element.textContent = base64Content;
+                    element.classList.remove('hidden');
                     navigator.clipboard.writeText(base64Content).then(function() {
                         alert("Base64订阅内容已复制");
                     });
@@ -1757,51 +1305,8 @@ async function handleSubscriptionPage(request, user = null) {
                 });
         }
         
-        function createMatrixRain() {
-            const matrixContainer = document.getElementById('matrixCodeRain');
-            const matrixChars = '01ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-            const columns = Math.floor(window.innerWidth / 18);
-            
-            for (let i = 0; i < columns; i++) {
-                const column = document.createElement('div');
-                column.className = 'matrix-column';
-                column.style.left = (i * 18) + 'px';
-                column.style.animationDelay = Math.random() * 15 + 's';
-                column.style.animationDuration = (Math.random() * 15 + 8) + 's';
-                column.style.fontSize = (Math.random() * 4 + 12) + 'px';
-                column.style.opacity = Math.random() * 0.8 + 0.2;
-                
-                let text = '';
-                const charCount = Math.floor(Math.random() * 30 + 20);
-                for (let j = 0; j < charCount; j++) {
-                    const char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
-                    const brightness = Math.random() > 0.1 ? '#00ff00' : '#00aa00';
-                    text += '<span style="color: ' + brightness + ';">' + char + '</span><br>';
-                }
-                column.innerHTML = text;
-                matrixContainer.appendChild(column);
-            }
-            
-            setInterval(function() {
-                const columns = matrixContainer.querySelectorAll('.matrix-column');
-                columns.forEach(function(column) {
-                    if (Math.random() > 0.95) {
-                        const chars = column.querySelectorAll('span');
-                        if (chars.length > 0) {
-                            const randomChar = chars[Math.floor(Math.random() * chars.length)];
-                            randomChar.style.color = '#ffffff';
-                            setTimeout(function() {
-                                randomChar.style.color = '#00ff00';
-                            }, 200);
-                        }
-                    }
-                });
-            }, 100);
-        }
-        
         async function checkSystemStatus() {
             try {
-                const cfStatus = document.getElementById('cfStatus');
                 const regionStatus = document.getElementById('regionStatus');
                 const geoInfo = document.getElementById('geoInfo');
                 const backupStatus = document.getElementById('backupStatus');
@@ -1814,140 +1319,98 @@ async function handleSubscriptionPage(request, user = null) {
                     'FI': '🇫🇮 芬兰', 'GB': '🇬🇧 英国'
                 };
                 
-                let detectedRegion = 'US'; // 默认值
-                let isCustomIPMode = false;
-                let isManualRegionMode = false;
+                let detectedRegion = 'US';
                 try {
                     const response = await fetch('/region');
                     const data = await response.json();
                     
-                    
                     if (data.region === 'CUSTOM') {
-                        isCustomIPMode = true;
-                        detectedRegion = 'CUSTOM';
-                        
-                        // 获取自定义IP的详细信息
                         const customIPInfo = data.customIP || '未知';
                         
-                        geoInfo.innerHTML = '检测方式: <span style="color: #ffaa00;">⚙️ 自定义ProxyIP模式 (p变量启用)</span>';
-                        regionStatus.innerHTML = 'Worker地区: <span style="color: #ffaa00;">🔧 自定义IP模式 (已禁用地区匹配)</span>';
+                        geoInfo.innerHTML = '检测方式: <span class="text-orange-500">⚙️ 自定义ProxyIP模式 (p变量启用)</span>';
+                        regionStatus.innerHTML = 'Worker地区: <span class="text-orange-500">🔧 自定义IP模式 (已禁用地区匹配)</span>';
                         
-                        // 显示自定义IP配置状态，包含具体IP
-                        if (backupStatus) backupStatus.innerHTML = 'ProxyIP状态: <span style="color: #ffaa00;">🔧 使用自定义ProxyIP: ' + customIPInfo + '</span>';
-                        if (currentIP) currentIP.innerHTML = '当前使用IP: <span style="color: #ffaa00;">✅ ' + customIPInfo + ' (p变量配置)</span>';
-                        if (regionMatch) regionMatch.innerHTML = '地区匹配: <span style="color: #ffaa00;">⚠️ 自定义IP模式，地区选择已禁用</span>';
+                        if (backupStatus) backupStatus.innerHTML = 'ProxyIP状态: <span class="text-orange-500">🔧 使用自定义ProxyIP: ' + customIPInfo + '</span>';
+                        if (currentIP) currentIP.innerHTML = '当前使用IP: <span class="text-green-600">✅ ' + customIPInfo + ' (p变量配置)</span>';
+                        if (regionMatch) regionMatch.innerHTML = '地区匹配: <span class="text-orange-500">⚠️ 自定义IP模式，地区选择已禁用</span>';
                         
-                        return; // 提前返回，不执行后续的地区匹配逻辑
+                        return;
                     } else if (data.detectionMethod === '手动指定地区') {
-                        isManualRegionMode = true;
                         detectedRegion = data.region;
                         
-                        geoInfo.innerHTML = '检测方式: <span style="color: #44aa44;">手动指定地区</span>';
-                        regionStatus.innerHTML = 'Worker地区: <span style="color: #44ff44;">🎯 ' + regionNames[detectedRegion] + ' (手动指定)</span>';
+                        geoInfo.innerHTML = '检测方式: <span class="text-green-600">手动指定地区</span>';
+                        regionStatus.innerHTML = 'Worker地区: <span class="text-green-600">🎯 ' + regionNames[detectedRegion] + ' (手动指定)</span>';
                         
-                        // 显示配置状态而不是检测状态
-                        if (backupStatus) backupStatus.innerHTML = 'ProxyIP状态: <span style="color: #44ff44;">✅ 10/10 可用 (ProxyIP域名预设可用)</span>';
-                        if (currentIP) currentIP.innerHTML = '当前使用IP: <span style="color: #44ff44;">✅ 智能就近选择中</span>';
-                        if (regionMatch) regionMatch.innerHTML = '地区匹配: <span style="color: #44ff44;">✅ 同地区IP可用 (1个)</span>';
+                        if (backupStatus) backupStatus.innerHTML = 'ProxyIP状态: <span class="text-green-600">✅ 10/10 可用 (ProxyIP域名预设可用)</span>';
+                        if (currentIP) currentIP.innerHTML = '当前使用IP: <span class="text-green-600">✅ 智能就近选择中</span>';
+                        if (regionMatch) regionMatch.innerHTML = '地区匹配: <span class="text-green-600">✅ 同地区IP可用 (1个)</span>';
                         
-                        return; // 提前返回，不执行后续的地区匹配逻辑
+                        return;
                     } else if (data.region && regionNames[data.region]) {
                         detectedRegion = data.region;
                     }
                     
-                    geoInfo.innerHTML = '检测方式: <span style="color: #44ff44;">Cloudflare内置检测</span>';
+                    geoInfo.innerHTML = '检测方式: <span class="text-green-600">Cloudflare内置检测</span>';
                     
                 } catch (e) {
-                    geoInfo.innerHTML = '检测方式: <span style="color: #ff4444;">检测失败</span>';
+                    geoInfo.innerHTML = '检测方式: <span class="text-red-500">检测失败</span>';
                 }
                 
-                regionStatus.innerHTML = 'Worker地区: <span style="color: #44ff44;">✅ ' + regionNames[detectedRegion] + '</span>';
+                regionStatus.innerHTML = 'Worker地区: <span class="text-green-600">✅ ' + regionNames[detectedRegion] + '</span>';
                 
-                
-                // 直接显示配置状态，不再进行检测
                 if (backupStatus) {
-                    backupStatus.innerHTML = 'ProxyIP状态: <span style="color: #44ff44;">✅ 10/10 可用 (ProxyIP域名预设可用)</span>';
+                    backupStatus.innerHTML = 'ProxyIP状态: <span class="text-green-600">✅ 10/10 可用 (ProxyIP域名预设可用)</span>';
                 }
                 
                 if (currentIP) {
-                    currentIP.innerHTML = '当前使用IP: <span style="color: #44ff44;">✅ 智能就近选择中</span>';
+                    currentIP.innerHTML = '当前使用IP: <span class="text-green-600">✅ 智能就近选择中</span>';
                 }
                 
                 if (regionMatch) {
-                    regionMatch.innerHTML = '地区匹配: <span style="color: #44ff44;">✅ 同地区IP可用 (1个)</span>';
+                    regionMatch.innerHTML = '地区匹配: <span class="text-green-600">✅ 同地区IP可用 (1个)</span>';
                 }
                 
             } catch (error) {
                 console.error('状态检测失败:', error);
-                document.getElementById('regionStatus').innerHTML = 'Worker地区: <span style="color: #ff4444;">❌ 检测失败</span>';
-                document.getElementById('geoInfo').innerHTML = '地理位置: <span style="color: #ff4444;">❌ 检测失败</span>';
-                document.getElementById('backupStatus').innerHTML = 'ProxyIP状态: <span style="color: #ff4444;">❌ 检测失败</span>';
-                document.getElementById('currentIP').innerHTML = '当前使用IP: <span style="color: #ff4444;">❌ 检测失败</span>';
-                document.getElementById('regionMatch').innerHTML = '地区匹配: <span style="color: #ff4444;">❌ 检测失败</span>';
-            }
-        }
-        
-        async function testAPI() {
-            try {
-                const response = await fetch('/test-api');
-                const data = await response.json();
-                
-                
-                if (data.detectedRegion) {
-                    alert('API检测结果: ' + data.detectedRegion + '\\n检测时间: ' + data.timestamp);
-                } else {
-                    alert('API检测失败: ' + (data.error || '未知错误'));
-                }
-            } catch (error) {
-                console.error('API测试失败:', error);
-                alert('API测试失败: ' + error.message);
+                document.getElementById('regionStatus').innerHTML = 'Worker地区: <span class="text-red-500">❌ 检测失败</span>';
+                document.getElementById('geoInfo').innerHTML = '检测方式: <span class="text-red-500">❌ 检测失败</span>';
+                document.getElementById('backupStatus').innerHTML = 'ProxyIP状态: <span class="text-red-500">❌ 检测失败</span>';
+                document.getElementById('currentIP').innerHTML = '当前使用IP: <span class="text-red-500">❌ 检测失败</span>';
+                document.getElementById('regionMatch').innerHTML = '地区匹配: <span class="text-red-500">❌ 检测失败</span>';
             }
         }
         
         // 配置管理相关函数
         async function checkKVStatus() {
             const apiUrl = window.location.pathname + '/api/config';
-            console.log('🔍 调试信息 - 检查KV状态');
-            console.log('请求URL:', apiUrl);
             
             try {
                 const response = await fetch(apiUrl);
-                console.log('响应状态:', response.status);
-                console.log('响应头:', Object.fromEntries(response.headers.entries()));
                 
                 if (response.status === 503) {
-                    // KV未配置
-                    console.log('❌ KV存储未配置 (503)');
-                    document.getElementById('kvStatus').innerHTML = '<span style="color: #ffaa00;">⚠️ KV存储未启用或未配置</span>';
+                    document.getElementById('kvStatus').innerHTML = '<span class="text-orange-500">⚠️ KV存储未启用或未配置</span>';
                     document.getElementById('configCard').style.display = 'block';
                     document.getElementById('currentConfig').textContent = 'KV存储未配置，无法使用配置管理功能。\\n\\n请在Cloudflare Workers中:\\n1. 创建KV命名空间\\n2. 绑定环境变量 C\\n3. 重新部署代码';
                 } else if (response.ok) {
                     const data = await response.json();
-                    console.log('响应数据:', data);
-                    console.log('kvEnabled:', data.kvEnabled);
                     
-                    // 检查响应是否包含KV配置信息
                     if (data && data.kvEnabled === true) {
-                        console.log('✅ KV存储已启用');
-                        document.getElementById('kvStatus').innerHTML = '<span style="color: #44ff44;">✅ KV存储已启用，可以使用配置管理功能</span>';
+                        document.getElementById('kvStatus').innerHTML = '<span class="text-green-600">✅ KV存储已启用，可以使用配置管理功能</span>';
                         document.getElementById('configContent').style.display = 'block';
                         document.getElementById('configCard').style.display = 'block';
                         await loadCurrentConfig();
                     } else {
-                        console.log('❌ KV存储未启用 (响应中kvEnabled不为true)');
-                        document.getElementById('kvStatus').innerHTML = '<span style="color: #ffaa00;">⚠️ KV存储未启用或未配置</span>';
+                        document.getElementById('kvStatus').innerHTML = '<span class="text-orange-500">⚠️ KV存储未启用或未配置</span>';
                         document.getElementById('configCard').style.display = 'block';
                         document.getElementById('currentConfig').textContent = 'KV存储未配置';
                     }
                 } else {
-                    console.log('❌ 响应错误:', response.status, response.statusText);
-                    document.getElementById('kvStatus').innerHTML = '<span style="color: #ffaa00;">⚠️ KV存储未启用或未配置</span>';
+                    document.getElementById('kvStatus').innerHTML = '<span class="text-orange-500">⚠️ KV存储未启用或未配置</span>';
                     document.getElementById('configCard').style.display = 'block';
                     document.getElementById('currentConfig').textContent = 'KV存储检测失败 - 状态码: ' + response.status;
                 }
             } catch (error) {
-                console.log('❌ 请求失败:', error);
-                document.getElementById('kvStatus').innerHTML = '<span style="color: #ffaa00;">⚠️ KV存储未启用或未配置</span>';
+                document.getElementById('kvStatus').innerHTML = '<span class="text-orange-500">⚠️ KV存储未启用或未配置</span>';
                 document.getElementById('configCard').style.display = 'block';
                 document.getElementById('currentConfig').textContent = 'KV存储检测失败 - 错误: ' + error.message;
             }
@@ -1955,27 +1418,20 @@ async function handleSubscriptionPage(request, user = null) {
         
         async function loadCurrentConfig() {
             const apiUrl = window.location.pathname + '/api/config';
-            console.log('📥 调试信息 - 加载配置');
-            console.log('请求URL:', apiUrl);
             
             try {
                 const response = await fetch(apiUrl);
-                console.log('加载响应状态:', response.status);
                 
                 if (response.status === 503) {
-                    console.log('❌ KV存储未配置，无法加载配置');
                     document.getElementById('currentConfig').textContent = 'KV存储未配置，无法加载配置';
                     return;
                 }
                 if (!response.ok) {
-                    console.log('❌ 加载配置失败，状态码:', response.status);
                     document.getElementById('currentConfig').textContent = '加载配置失败';
                     return;
                 }
                 const config = await response.json();
-                console.log('加载的配置数据:', config);
                 
-                // 过滤掉内部字段 kvEnabled
                 const displayConfig = {};
                 for (const [key, value] of Object.entries(config)) {
                     if (key !== 'kvEnabled') {
@@ -1994,7 +1450,6 @@ async function handleSubscriptionPage(request, user = null) {
                 
                 document.getElementById('currentConfig').textContent = configText;
                 
-                // 更新表单值
                 document.getElementById('wkRegion').value = config.wk || '';
                 document.getElementById('customIP').value = config.p || '';
                 document.getElementById('preferredIPs').value = config.yx || '';
@@ -2006,7 +1461,6 @@ async function handleSubscriptionPage(request, user = null) {
                 document.getElementById('portControl').value = config.dkby || '';
                 document.getElementById('preferredControl').value = config.yxby || '';
                 
-                // 检查p变量，如果有值则禁用wk地区选择
                 updateWkRegionState();
                 
             } catch (error) {
@@ -2014,7 +1468,6 @@ async function handleSubscriptionPage(request, user = null) {
             }
         }
         
-        // 更新wk地区选择的启用/禁用状态
         function updateWkRegionState() {
             const customIP = document.getElementById('customIP');
             const wkRegion = document.getElementById('wkRegion');
@@ -2024,23 +1477,15 @@ async function handleSubscriptionPage(request, user = null) {
                 const hasCustomIP = customIP.value.trim() !== '';
                 wkRegion.disabled = hasCustomIP;
                 
-                // 添加视觉反馈
                 if (hasCustomIP) {
-                    wkRegion.style.opacity = '0.5';
-                    wkRegion.style.cursor = 'not-allowed';
-                    wkRegion.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-                    // 显示提示信息
+                    wkRegion.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-200');
                     if (wkRegionHint) {
-                        wkRegionHint.style.display = 'block';
-                        wkRegionHint.style.color = '#ffaa00';
+                        wkRegionHint.classList.remove('hidden');
                     }
                 } else {
-                    wkRegion.style.opacity = '1';
-                    wkRegion.style.cursor = 'pointer';
-                    wkRegion.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-                    // 隐藏提示信息
+                    wkRegion.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-200');
                     if (wkRegionHint) {
-                        wkRegionHint.style.display = 'none';
+                        wkRegionHint.classList.add('hidden');
                     }
                 }
             }
@@ -2048,9 +1493,6 @@ async function handleSubscriptionPage(request, user = null) {
         
         async function saveConfig(configData) {
             const apiUrl = window.location.pathname + '/api/config';
-            console.log('💾 调试信息 - 保存配置');
-            console.log('请求URL:', apiUrl);
-            console.log('配置数据:', configData);
             
             try {
                 const response = await fetch(apiUrl, {
@@ -2059,34 +1501,22 @@ async function handleSubscriptionPage(request, user = null) {
                     body: JSON.stringify(configData)
                 });
                 
-                console.log('保存响应状态:', response.status);
-                console.log('保存响应头:', Object.fromEntries(response.headers.entries()));
-                
                 if (response.status === 503) {
-                    console.log('❌ KV存储未配置，无法保存');
                     showStatus('KV存储未配置，无法保存配置。请先在Cloudflare Workers中配置KV存储。', 'error');
                     return;
                 }
                 
                 const result = await response.json();
-                console.log('保存响应数据:', result);
-                
                 showStatus(result.message, result.success ? 'success' : 'error');
                 
                 if (result.success) {
-                    console.log('✅ 保存成功，重新加载配置');
                     await loadCurrentConfig();
-                    // 更新wk地区选择状态
                     updateWkRegionState();
-                    // 保存成功后刷新页面以更新系统状态
                     setTimeout(function() {
                         window.location.reload();
                     }, 1500);
-                } else {
-                    console.log('❌ 保存失败:', result.message);
                 }
             } catch (error) {
-                console.log('❌ 保存请求失败:', error);
                 showStatus('保存失败: ' + error.message, 'error');
             }
         }
@@ -2094,12 +1524,16 @@ async function handleSubscriptionPage(request, user = null) {
         function showStatus(message, type) {
             const statusDiv = document.getElementById('statusMessage');
             statusDiv.textContent = message;
-            statusDiv.style.display = 'block';
-            statusDiv.style.color = type === 'success' ? '#00ff00' : '#ff0000';
-            statusDiv.style.borderColor = type === 'success' ? '#00ff00' : '#ff0000';
+            statusDiv.classList.remove('hidden');
+            statusDiv.classList.remove('text-green-600', 'text-red-500', 'border-green-600', 'border-red-500');
+            if (type === 'success') {
+                statusDiv.classList.add('text-green-600', 'border-green-600');
+            } else {
+                statusDiv.classList.add('text-red-500', 'border-red-500');
+            }
             
             setTimeout(function() {
-                statusDiv.style.display = 'none';
+                statusDiv.classList.add('hidden');
             }, 3000);
         }
         
@@ -2110,16 +1544,8 @@ async function handleSubscriptionPage(request, user = null) {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
-                            wk: '',
-                            p: '',
-                            yx: '',
-                            yxURL: '',
-                            s: '',
-                            apiEnabled: '',
-                            rm: '',
-                            qj: '',
-                            dkby: '',
-                            yxby: ''
+                            wk: '', p: '', yx: '', yxURL: '', s: '', 
+                            apiEnabled: '', rm: '', qj: '', dkby: '', yxby: ''
                         })
                     });
                     
@@ -2133,9 +1559,7 @@ async function handleSubscriptionPage(request, user = null) {
                     
                     if (result.success) {
                         await loadCurrentConfig();
-                        // 更新wk地区选择状态
                         updateWkRegionState();
-                        // 刷新页面以更新系统状态
                         setTimeout(function() {
                             window.location.reload();
                         }, 1500);
@@ -2147,11 +1571,9 @@ async function handleSubscriptionPage(request, user = null) {
         }
         
         document.addEventListener('DOMContentLoaded', function() {
-            createMatrixRain();
             checkSystemStatus();
             checkKVStatus();
             
-            // 监听customIP输入框变化，实时更新wk地区选择状态
             const customIPInput = document.getElementById('customIP');
             if (customIPInput) {
                 customIPInput.addEventListener('input', function() {
@@ -2159,7 +1581,6 @@ async function handleSubscriptionPage(request, user = null) {
                 });
             }
             
-            // 绑定表单事件
             const regionForm = document.getElementById('regionForm');
             if (regionForm) {
                 regionForm.addEventListener('submit', async function(e) {
